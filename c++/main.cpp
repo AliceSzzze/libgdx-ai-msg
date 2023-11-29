@@ -18,21 +18,21 @@ int getRandomInteger(int min, int max) {
 void writeToCSV(std::ofstream& csvFile, const std::vector<Delay>& data) {
     // Write data to the CSV file
     for (const auto& row : data) {
-        csvFile << row.measuredDelayMicros <<","<< row.expectedDelay<< "\n";
+        csvFile << row.measuredDelay <<","<< row.expectedDelay<< "\n";
     }
 }
 
 int main() {
     MessageDispatcher dispatcher;
 
-    int numMailboxes = 10;
-    int numTelegraphs = 10;
+    int numMailboxes = 100;
+    int numTelegraphs = 100;
     int maxDelay = 500;
-    int maxSubscriptions = 2;
-    int duration = 2;
+    int maxSubscriptions = 5;
+    int duration = 3;
+//    int messageIntensity = 5.0;
 
     for (int i = 0; i < numMailboxes; ++i) {
-//        std::cout <<"adding mailbox "<<i <<"\n";
         dispatcher.addMailbox(i);
     }
 
@@ -48,13 +48,13 @@ int main() {
         }
     }
 
-    auto start = std::chrono::steady_clock::now();
+    auto start = std::chrono::system_clock::now();
     long long diff;
     int numMsgs = 0;
     do {
-        auto now = std::chrono::steady_clock::now();
+        auto now = std::chrono::system_clock::now();
         diff = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
-        if (getRandomInteger(0, 200000) == 1) {
+        if (getRandomInteger(0, 50000) == 1) {
             int msg = getRandomInteger(0, numMailboxes);
             dispatcher.dispatchMessage(msg);
             numMsgs++;
@@ -68,7 +68,7 @@ int main() {
         totalDelays.insert(totalDelays.end(), mailbox.measuredDelays.begin(), mailbox.measuredDelays.end());
     }
 
-    std::string filename = "exp14.csv";
+    std::string filename = "exp13.csv";
     std::ofstream csvFile(filename);
 
     if (!csvFile.is_open()) {
@@ -81,7 +81,7 @@ int main() {
     csvFile << "maximum subscription: " << maxSubscriptions << "\n";
     csvFile << "duration: " << duration << "\n";
     csvFile << "number of telegrams sent: "<< numMsgs << "\n";
-    csvFile << "latency,delay\n";
+    csvFile << "received at,latency,delay\n";
     writeToCSV(csvFile, totalDelays);
     csvFile.close();
 

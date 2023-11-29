@@ -25,9 +25,9 @@ public:
     void removeListener(Telegraph& listener);
     std::vector<Delay> measuredDelays;
 
-    ~Mailbox() {
-        std::cout << "mailbox destroyed \n";
-    }
+//    ~Mailbox() {
+//        std::cout << "mailbox destroyed \n";
+//    }
 
 private:
     std::unordered_map<Telegraph, Uint64> delays;

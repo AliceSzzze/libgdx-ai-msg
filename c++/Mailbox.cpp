@@ -5,21 +5,28 @@
 #include "MessageDispatcher.h"
 #include <vector>
 
+using namespace  std::chrono;
+
+static int elapsedMillis(const time_point<system_clock>& start, const time_point<system_clock>& end) {
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+    return elapsed;
+}
+
 void Mailbox::update() {
-    cugl::Timestamp now;
+    auto now = std::chrono::system_clock::now();
     int messagesToBePopped = 0;
     for (Telegram& msg: messages) {
         // if we processed this telegram within the last 0.5ms, return
-        Uint64 elapsedMillisSinceLastUpdate = cugl::Timestamp::ellapsedMillis(msg.lastDelay, now);
-        if (elapsedMillisSinceLastUpdate < 1) continue;
-
-        Uint64 elapsedMillisSinceSent = cugl::Timestamp::ellapsedMillis(msg.timeSent, now);
-
-        auto it = listeners.upper_bound(elapsedMillisSinceLastUpdate);
+        Uint64 elapsedMillisSinceSent = elapsedMillis(msg.timeSent, now);
+        Uint64 elapsedMillisSinceLast = elapsedMillis(msg.lastDelay, now);
+        if (elapsedMillisSinceLast < 1) continue;
+        Uint64 lastCheckpoint = elapsedMillis(msg.timeSent, msg.lastDelay);
+        auto it = listeners.upper_bound(lastCheckpoint);
         for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
             it->second.handleMessage(msg);
-            auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg.timeSent, cugl::Timestamp());
-            measuredDelays.emplace_back(measuredDelayMicros - it->first, it->first);
+            auto curr = std::chrono::system_clock::now();
+            Uint64 diff = elapsedMillis(msg.timeSent, curr) - it->first;
+            measuredDelays.emplace_back( diff, it->first);
         }
 
         if (it == listeners.end()) {
@@ -65,8 +72,8 @@ void Mailbox::addListener(Telegraph &listener, Uint64 delay) {
 void Mailbox::removeListener(Telegraph &listener) {
     if (delays.find(listener) == delays.end()) return;
 
-    Uint64 delay = delays[listener];
-    if (delay <= 0) {
+    int delay = delays[listener];
+    if (delay <= 0.0) {
         immediate.erase(listener);
     } else {
         auto range = listeners.equal_range(delay);

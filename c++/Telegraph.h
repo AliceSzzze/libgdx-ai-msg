@@ -12,7 +12,7 @@
 
 class Telegraph {
 public:
-     void handleMessage(Telegram msg) const {};
+     void handleMessage(Telegram& msg) const {};
 
     bool operator==(const Telegraph& other) const {
         return this == &other;

@@ -6,17 +6,17 @@
 #define LIBGDX_TELEGRAM_H
 #include <chrono>
 #include "CUTimestamp.h"
-
+using namespace  std::chrono;
 class Telegram {
 
 public:
      Telegram() {
-        timeSent = cugl::Timestamp();
-        lastDelay = cugl::Timestamp();
+        timeSent = std::chrono::system_clock::now();
+        lastDelay =  std::chrono::system_clock::now();
     }
 
-    cugl::Timestamp timeSent;
-    cugl::Timestamp lastDelay;
+    time_point<system_clock> timeSent;
+    time_point<system_clock> lastDelay;
 };
 
 

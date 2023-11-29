@@ -10,10 +10,9 @@
 using namespace std::chrono;
 class Delay {
 public:
-    Delay(Uint64 measuredDelay, Uint64 expectedDelay) : measuredDelayMicros(measuredDelay), expectedDelay(expectedDelay) {};
-    Uint64 measuredDelayMicros;
-//    int msg;
-    Uint64 expectedDelay;
+    Delay(int measuredDelay, int expectedDelay) : measuredDelay(measuredDelay), expectedDelay(expectedDelay) {};
+    uint64_t measuredDelay;
+    uint64_t expectedDelay;
 };
 
 
