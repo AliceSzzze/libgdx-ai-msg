@@ -8,24 +8,25 @@
 void Mailbox::update() {
     cugl::Timestamp now;
     int messagesToBePopped = 0;
-    for (Telegram& msg: messages) {
+    for (const std::shared_ptr<Telegram>& msg: messages) {
+        Uint64 elapsedMicrosSinceLastUpdate = cugl::Timestamp::ellapsedMicros(msg->lastDelay, now);
         // if we processed this telegram within the last 0.5ms, return
-        Uint64 elapsedMillisSinceLastUpdate = cugl::Timestamp::ellapsedMillis(msg.lastDelay, now);
-        if (elapsedMillisSinceLastUpdate < 1) continue;
 
-        Uint64 elapsedMillisSinceSent = cugl::Timestamp::ellapsedMillis(msg.timeSent, now);
+        if (elapsedMicrosSinceLastUpdate < 250) return;
 
-        auto it = listeners.upper_bound(elapsedMillisSinceLastUpdate);
+        Uint64 elapsedMillisSinceSent = cugl::Timestamp::ellapsedMillis(msg->timeSent, now);
+        Uint64 lastCheckpoint = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastDelay);
+        auto it = listeners.upper_bound(lastCheckpoint);
         for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
-            it->second.handleMessage(msg);
-            auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg.timeSent, cugl::Timestamp());
-            measuredDelays.emplace_back(measuredDelayMicros - it->first, it->first);
+            it->second->handleMessage(msg);
+            auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg->timeSent, cugl::Timestamp());
+            measuredDelays.emplace_back(measuredDelayMicros - it->first * 1000, it->first);
         }
 
         if (it == listeners.end()) {
             messagesToBePopped++;
         }
-        msg.lastDelay = now;
+        msg->lastDelay = now;
     }
 
     while (messagesToBePopped > 0) {
@@ -34,38 +35,38 @@ void Mailbox::update() {
     }
 }
 
-void Mailbox::dispatchMessage(Telegraph &sender, Telegraph &receiver) {
+void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>&sender, const std::shared_ptr<Telegraph>& receiver) {
 
 
 }
-void Mailbox::dispatchMessage() {
-    Telegram telegram;
+void Mailbox::dispatchMessage(const std::shared_ptr<void>& extraInfo) {
+    std::shared_ptr<Telegram> telegram = std::make_shared<Telegram>(extraInfo);
 
-    for (const Telegraph& t: immediate) {
-        t.handleMessage(telegram);
+    for (const auto& t: immediate) {
+        t->handleMessage(telegram);
     }
 
     messages.push_back(telegram);
 }
 
-void Mailbox::dispatchMessage(Telegraph &sender) {
+void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>& sender) {
     Mailbox::dispatchMessage();
 }
 
-void Mailbox::addListener(Telegraph &listener, Uint64 delay) {
+void Mailbox::addListener(const std::shared_ptr<Telegraph>& listener, Uint64 delay) {
     listeners.emplace(delay, listener);
 
     if (delay <= 0) {
         immediate.emplace(listener);
     } else {
-        delays.emplace(listener, delay);
+        delays.emplace(listener.get(), delay);
     }
 }
 
-void Mailbox::removeListener(Telegraph &listener) {
-    if (delays.find(listener) == delays.end()) return;
+bool Mailbox::removeListener(const std::shared_ptr<Telegraph>& listener) {
+    if (delays.find(listener.get()) == delays.end()) return false;
 
-    Uint64 delay = delays[listener];
+    Uint64 delay = delays[listener.get()];
     if (delay <= 0) {
         immediate.erase(listener);
     } else {
@@ -78,7 +79,8 @@ void Mailbox::removeListener(Telegraph &listener) {
         }
     }
 
-    delays.erase(listener);
+    delays.erase(listener.get());
+    return true;
 }
 
 

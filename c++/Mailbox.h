@@ -17,25 +17,23 @@ class Mailbox {
 public:
     Mailbox() = default;
     void update();
-    void dispatchMessage(Telegraph& sender, Telegraph& receiver);
-    void dispatchMessage(Telegraph& sender);
-    void dispatchMessage();
+    void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<Telegraph>& receiver);
+    void dispatchMessage(const std::shared_ptr<Telegraph>& sender);
+    void dispatchMessage(const std::shared_ptr<void>& extraInfo = nullptr);
 
-    void addListener(Telegraph &listener, Uint64 delay = 0);
-    void removeListener(Telegraph& listener);
+    void addListener(const std::shared_ptr<Telegraph>& listener, Uint64 delay = 0);
+    bool removeListener(const std::shared_ptr<Telegraph>&);
     std::vector<Delay> measuredDelays;
-
-    ~Mailbox() {
-        std::cout << "mailbox destroyed \n";
-    }
+//
+//    ~Mailbox() {
+//        std::cout << "mailbox destroyed \n";
+//    }
 
 private:
-    std::unordered_map<Telegraph, Uint64> delays;
-    std::multimap<Uint64, Telegraph> listeners;
-    std::unordered_set<Telegraph> immediate;
-    std::deque<Telegram> messages;
-//    std::unordered_set<std::pair<Telegram*, >>
-
+    std::unordered_map<Telegraph*, Uint64> delays;
+    std::multimap<Uint64, std::shared_ptr<Telegraph>> listeners;
+    std::unordered_set<std::shared_ptr<Telegraph>> immediate;
+    std::deque<std::shared_ptr<Telegram>> messages;
 
 };
 #endif //LIBGDX_MAILBOX_H

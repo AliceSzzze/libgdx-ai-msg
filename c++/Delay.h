@@ -12,7 +12,6 @@ class Delay {
 public:
     Delay(Uint64 measuredDelay, Uint64 expectedDelay) : measuredDelayMicros(measuredDelay), expectedDelay(expectedDelay) {};
     Uint64 measuredDelayMicros;
-//    int msg;
     Uint64 expectedDelay;
 };
 

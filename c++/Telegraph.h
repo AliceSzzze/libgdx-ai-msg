@@ -12,7 +12,12 @@
 
 class Telegraph {
 public:
-     void handleMessage(Telegram msg) const {};
+     void handleMessage(const std::shared_ptr<Telegram>& msg) const {
+//         int* value = static_cast<int*>(msg.get()->extraInfo.get());
+//
+//         // Use value as needed
+//         std::cout << "Value: " << *value << std::endl;
+     };
 
     bool operator==(const Telegraph& other) const {
         return this == &other;
@@ -24,7 +29,6 @@ namespace std {
     template <>
     struct hash<Telegraph> {
         std::size_t operator()(const Telegraph& t) const {
-            // Use the hash value of the message for simplicity
             return std::hash<long>()((long) (&t));
         }
     };

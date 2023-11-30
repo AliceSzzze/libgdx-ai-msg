@@ -18,14 +18,14 @@ public:
     void removeMailbox(int msg);
 
     // TODO: add extra data? delay? sender?
-    void dispatchMessage(Telegraph& sender, Telegraph& receiver, int msg);
-    void dispatchMessage(Telegraph& sender, int msg);
-    void dispatchMessage(int msg);
-    void addListener(Telegraph& listener, int msg, int delay = 0);
-    void removeListener(Telegraph& listener, int msg);
+    void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<Telegraph>& receiver, int msg);
+    void dispatchMessage(const std::shared_ptr<Telegraph>& sender, int msg);
+    void dispatchMessage(int msg, const std::shared_ptr<void>& extraInfo = nullptr);
+    void addListener(const std::shared_ptr<Telegraph>& listener, int msg, int delay = 0);
+    bool removeListener(const std::shared_ptr<Telegraph>& listener, int msg);
 
 //private:
-    std::unordered_map<int, Mailbox> mailboxes;
+    std::unordered_map<int, std::shared_ptr<Mailbox>> mailboxes;
 
 };
 
