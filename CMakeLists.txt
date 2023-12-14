@@ -12,7 +12,6 @@ add_executable(libgdx
         c++/MessageDispatcher.cpp
         c++/MessageDispatcher.h
         c++/Telegraph.h
-        c++/Telegram.cpp
         c++/Telegram.h
         c++/main.cpp
         c++/Delay.h

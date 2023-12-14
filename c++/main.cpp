@@ -25,14 +25,13 @@ void writeToCSV(std::ofstream& csvFile, const std::vector<Delay>& data) {
 int main() {
     MessageDispatcher dispatcher;
 
-    int numMailboxes = 500;
-    int numTelegraphs = 2000;
+    int numMailboxes = 5;
+    int numTelegraphs = 200;
     int maxDelay = 500;
-    int maxSubscriptions = 100;
+    int maxSubscriptions = 5;
     int duration = 10;
 
     for (int i = 0; i < numMailboxes; ++i) {
-//        std::cout <<"adding mailbox "<<i <<"\n";
         dispatcher.addMailbox(i);
     }
 
@@ -55,7 +54,7 @@ int main() {
     do {
         auto now = std::chrono::steady_clock::now();
         diff = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
-        if (getRandomInteger(0, 2000) == 1) {
+        if (getRandomInteger(0, 100000) == 1) {
             int msg = getRandomInteger(0, numMailboxes-1);
             dispatcher.dispatchMessage(msg);
             numMsgs++;
@@ -79,7 +78,7 @@ int main() {
         totalDelays.insert(totalDelays.end(), mailbox->measuredDelays.begin(), mailbox->measuredDelays.end());
     }
 
-    std::string filename = "exp16.csv";
+    std::string filename = "exp17.csv";
     std::ofstream csvFile(filename);
 
     if (!csvFile.is_open()) {

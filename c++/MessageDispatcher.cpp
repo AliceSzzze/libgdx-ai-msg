@@ -11,7 +11,9 @@ void MessageDispatcher::update() {
 }
 
 void MessageDispatcher::addMailbox(int msg) {
-    mailboxes.emplace(msg, std::make_shared<Mailbox>());
+    if (mailboxes.find(msg) == mailboxes.end()) {
+        mailboxes.emplace(msg, std::make_shared<Mailbox>());
+    }
 }
 
 void MessageDispatcher::removeMailbox(int msg) {

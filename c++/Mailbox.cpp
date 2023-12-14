@@ -9,24 +9,26 @@ void Mailbox::update() {
     cugl::Timestamp now;
     int messagesToBePopped = 0;
     for (const std::shared_ptr<Telegram>& msg: messages) {
-        Uint64 elapsedMicrosSinceLastUpdate = cugl::Timestamp::ellapsedMicros(msg->lastDelay, now);
+        Uint64 elapsedMicrosSinceLastUpdate = cugl::Timestamp::ellapsedMicros(msg->lastUpdate, now);
         // if we processed this telegram within the last 0.5ms, return
 
         if (elapsedMicrosSinceLastUpdate < 250) return;
 
         Uint64 elapsedMillisSinceSent = cugl::Timestamp::ellapsedMillis(msg->timeSent, now);
-        Uint64 lastCheckpoint = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastDelay);
+        Uint64 lastCheckpoint = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
         auto it = listeners.upper_bound(lastCheckpoint);
         for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
             it->second->handleMessage(msg);
             auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg->timeSent, cugl::Timestamp());
-            measuredDelays.emplace_back(measuredDelayMicros - it->first * 1000, it->first);
+
+//            Uncomment this line for benchmarking
+//            measuredDelays.emplace_back(measuredDelayMicros - it->first * 1000, it->first);
         }
 
         if (it == listeners.end()) {
             messagesToBePopped++;
         }
-        msg->lastDelay = now;
+        msg->lastUpdate = now;
     }
 
     while (messagesToBePopped > 0) {
@@ -35,10 +37,11 @@ void Mailbox::update() {
     }
 }
 
-void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>&sender, const std::shared_ptr<Telegraph>& receiver) {
-
-
+void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>&sender, const std::shared_ptr<Telegraph>& receiver, const std::shared_ptr<void>& extraInfo) {
+    std::shared_ptr<Telegram> telegram = std::make_shared<Telegram>(extraInfo);
+    receiver->handleMessage(telegram);
 }
+
 void Mailbox::dispatchMessage(const std::shared_ptr<void>& extraInfo) {
     std::shared_ptr<Telegram> telegram = std::make_shared<Telegram>(extraInfo);
 
@@ -49,7 +52,7 @@ void Mailbox::dispatchMessage(const std::shared_ptr<void>& extraInfo) {
     messages.push_back(telegram);
 }
 
-void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>& sender) {
+void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<void>& extraInfo) {
     Mailbox::dispatchMessage();
 }
 
