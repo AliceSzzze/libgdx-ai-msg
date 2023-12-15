@@ -18,23 +18,24 @@ void Mailbox::update() {
         Uint64 elapsedMillisSinceSent = cugl::Timestamp::ellapsedMillis(msg->timeSent, now);
         Uint64 lastCheckpoint = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
         auto it = listeners.upper_bound(lastCheckpoint);
+        
+        std::shared_ptr<Telegraph> sender = msg->sender;
 
-        if (msg->center != nullptr) {
-            std::vector<std::shared_ptr<RTreeObject>> objects = rtree->search(msg->center, msg->radius);
+        if (sender->getCenter() != nullptr) {
+            // if the sender specified a radius
             for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
+                
                 // check if receiver is in sender's range
-                for (const auto& obj : objects) {
-                    std::shared_ptr<Telegraph> t = std::dynamic_pointer_cast<Telegraph>(obj);
-                    
-                    if (t.get() == it->second.get()) {
-
-                    }
-                }
-
-                // check if sender is in receiver's range
+                if (!rtree->isInRange(sender->getCenter(), sender->getRadius(), it->second.get())) continue;
+                
+                // check if the receiver has a specified radius and if the sender is in the receiver's range
+                if (it->second->getCenter() != nullptr &&
+                    !rtree->isInRange(it->second->getCenter(), it->second->getRadius(), sender.get())) continue;
+                
                 it->second->handleMessage(msg);
             }
         } else {
+            // otherwise just send to all subscribers
             for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
                 it->second->handleMessage(msg);
 
@@ -55,6 +56,8 @@ void Mailbox::update() {
         messagesToBePopped--;
     }
 }
+
+
 
 void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>&sender, const std::shared_ptr<Telegraph>& receiver, const std::shared_ptr<void>& extraInfo) {
     std::shared_ptr<Telegram> telegram = std::make_shared<Telegram>(extraInfo);

@@ -37,7 +37,7 @@
 #include <memory>
 #include <cugl/cugl.h>
 
-
+class Telegraph;
 class Telegram {
 
 public:
@@ -48,6 +48,10 @@ public:
 
     explicit Telegram(std::shared_ptr<void> extraInfo) : Telegram() {
         this->extraInfo = std::move(extraInfo);
+    }
+    
+    explicit Telegram(const std::shared_ptr<Telegraph>& sender) : Telegram() {
+        this->sender = sender;
     }
 
 
@@ -60,13 +64,9 @@ public:
 
 
     /// optional extra information that is associated with this telegram.
-    std::shared_ptr<void> extraInfo = nullptr;
-
-    /// center of the sender, optional
-    cugl::Vec2 center;
-
-    /// radius of the sender, optional
-    float radius;
+    std::shared_ptr<void> extraInfo;
+    
+    std::shared_ptr<Telegraph> sender;
 };
 
 

@@ -37,8 +37,30 @@
 #include <functional>
 #include <iostream>
 
-class Telegraph : RTreeObject {
+class Telegraph : public RTreeObject {
+private:
+    /// optional
+    cugl::Vec2 center;
+
+    /// optional
+    float radius;
+    
 public:
+    Telegraph(float x, float y, float width, float height) : RTreeObject(x,y,width,height){}
+    
+    Telegraph(float x, float y, float width, float height,cugl::Vec2& center, float radius) : RTreeObject(x,y,width,height){
+        this->center = center;
+        this->radius = radius;
+    }
+    
+    cugl::Vec2& getCenter() {
+        return center;
+    }
+    
+    float getRadius() {
+        return radius;
+    }
+    
     virtual void handleMessage(const std::shared_ptr<Telegram>& msg) const {
      };
 

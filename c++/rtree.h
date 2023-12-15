@@ -131,6 +131,8 @@ private:
      * @return The root node of the new RTree.
      */
     std::shared_ptr<RTreeNode> sortTileRecursive(std::vector<std::shared_ptr<RTreeNode>> &nodes);
+    
+    bool isInRangeFromNode(RTreeNode &n, const Vec2 center, float radius, RTreeObject* target);
 
 public:
     /** The root node of this RTree. */
@@ -169,6 +171,9 @@ public:
      */
     std::vector<std::shared_ptr<RTreeObject>> search(const Vec2 center, float radius);
 
+    bool isInRange(const Vec2 center, float radius, RTreeObject* target);
+    
+    
     /**
      * Inserts an object into the R-Tree.
      *

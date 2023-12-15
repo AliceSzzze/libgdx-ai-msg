@@ -39,6 +39,28 @@ void RTree::findIntersections(RTreeNode &n, const Vec2 center, float radius,
     }
 }
 
+bool RTree::isInRangeFromNode(RTreeNode &n, const Vec2 center, float radius, RTreeObject* target) {
+    if (n.level == 0) {
+        for (auto &child : n.children) {
+            if (child->obj->rect.doesIntersect(center, radius) && child->obj.get() == target) {
+                return true;
+            }
+        }
+    } else {
+        for (auto &child : n.children) {
+            if (child->rect.doesIntersect(center, radius) && isInRangeFromNode(*child, center, radius, target)) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
+bool RTree::isInRange(const Vec2 center, float radius, RTreeObject* target) {
+    return isInRangeFromNode(*root, center, radius, target);
+}
+
 /**
  * Given a node to split, selects two children of the original node to become
  * the first children of the two new nodes.
