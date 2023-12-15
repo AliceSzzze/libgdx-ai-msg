@@ -8,21 +8,31 @@
 
 void Mailbox::update() {
     cugl::Timestamp now;
+    
+    // we pop messages from the queue after the iteration to prevent concurrent modification
     int messagesToBePopped = 0;
+    
     for (const std::shared_ptr<Telegram>& msg: messages) {
         Uint64 elapsedMicrosSinceLastUpdate = cugl::Timestamp::ellapsedMicros(msg->lastUpdate, now);
-        // if we processed this telegram within the last 250ms, return
-
+        
+        // small optimzation: if we processed this telegram within the last 250 microseconds, return
+        // because it is unlikely that we already have expired timestamps. Can be uncommented.
         if (elapsedMicrosSinceLastUpdate < 250) return;
 
         Uint64 elapsedMillisSinceSent = cugl::Timestamp::ellapsedMillis(msg->timeSent, now);
-        Uint64 lastCheckpoint = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
-        auto it = listeners.upper_bound(lastCheckpoint);
+        
+        // What was the delay we processed up to when this message was last updated?
+        Uint64 lastDelay = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
+        
+        // we want to get all the listeners with a larger delay than what we last processed
+        // because they haven't received the message yet
+        auto it = listeners.upper_bound(lastDelay);
         
         std::shared_ptr<Telegraph> sender = msg->sender;
 
-        if (sender->getCenter() != nullptr) {
-            // if the sender specified a radius
+        // if the sender specified a radius
+        if (sender != nullptr && sender->getCenter() != nullptr) {
+            
             for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
                 
                 // check if receiver is in sender's range
@@ -45,10 +55,13 @@ void Mailbox::update() {
             }
         }
 
+        // if we have sent to all subscribers, pop the message from the queue
         if (it == listeners.end()) {
             messagesToBePopped++;
+        } else {
+            msg->lastUpdate = now;
         }
-        msg->lastUpdate = now;
+        
     }
 
     while (messagesToBePopped > 0) {

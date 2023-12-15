@@ -1,8 +1,9 @@
 //
 //  Telegram.h
 //
-//  This class implements a Telegram object. A Telegram is essentially a message.
-//  A Telegram can be sent to one or more Telegraphs through the MessageDispatcher.
+//  This class implements a Telegram object. Telegrams are messages that are created
+//  by MessageDispatcher. They can be sent to one or more Telegraphs/subscribers
+//  through the dispatcher.
 //
 //  CUGL MIT License:
 //      This software is provided 'as-is', without any express or implied
@@ -42,6 +43,12 @@ class Telegraph;
 class Telegram {
 
 public:
+    /**
+     * Creates and initializes a Telegram.
+     *
+     * The time this telegram is sent and the last time this telegram has been
+     * checked for deliveries are set as the current time.
+     */
      Telegram() {
         timeSent = cugl::Timestamp();
         lastUpdate = cugl::Timestamp();
@@ -82,7 +89,7 @@ public:
         this->sender = sender;
     }
 
-    /// the time at which dispatchMessage is called and this telegram is created.
+    /// the time at which dispatchMessage is called by the sender and this telegram is created.
     cugl::Timestamp timeSent;
 
     /// the last time we checked this telegram for messages to dispatch.
@@ -91,10 +98,10 @@ public:
 
 
     /// optional extra information that is associated with this telegram.
-    std::shared_ptr<void> extraInfo;
+    std::shared_ptr<void> extraInfo = nullptr;
 
     /// sender of this telegram. Optional.
-    std::shared_ptr<Telegraph> sender;
+    std::shared_ptr<Telegraph> sender = nullptr;
 };
 
 

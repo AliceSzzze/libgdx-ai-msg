@@ -74,7 +74,6 @@ public:
         this->radius = radius;
     }
 
-
     cugl::Vec2& getCenter() {
         return center;
     }

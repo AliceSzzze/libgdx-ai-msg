@@ -42,6 +42,12 @@
 #include "rtree.h"
 class Mailbox {
 public:
+    /**
+     * Creates a mailbox with an existing R-Tree.
+     *
+     * @param rtree the rtree the mailbox should used to check who is in range
+     * for message delivery.
+     */
     Mailbox(const std::shared_ptr<RTree>& rtree) {
         this->rtree = rtree;
     };
@@ -52,9 +58,10 @@ public:
      */
     void update();
 
-
-    static void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<Telegraph>& receiver, const std::shared_ptr<void>& extraInfo = nullptr);
+    void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<Telegraph>& receiver, const std::shared_ptr<void>& extraInfo = nullptr);
+    
     void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<void>& extraInfo = nullptr);
+
     void dispatchMessage(const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
@@ -93,6 +100,8 @@ private:
     /// Messages are popped once there are no more deliveries to be made.
     std::deque<std::shared_ptr<Telegram>> messages;
 
+    /// the rtree that is used to check who is in the sender/recipient's range
+    /// if a range is specified
     std::shared_ptr<RTree> rtree;
 };
 #endif //LIBGDX_MAILBOX_H

@@ -29,7 +29,9 @@ void MessageDispatcher::dispatchMessage(const std::shared_ptr<Telegraph>& sender
 }
 
 void MessageDispatcher::dispatchMessage(const std::shared_ptr<Telegraph>& sender, int msg) {
-    mailboxes[msg]->dispatchMessage(sender);
+    if (mailboxes.find(msg) != mailboxes.end()) {
+        mailboxes[msg]->dispatchMessage(sender);
+    }
 }
 
 void MessageDispatcher::dispatchMessage(int msg, const std::shared_ptr<void>& extraInfo) {
