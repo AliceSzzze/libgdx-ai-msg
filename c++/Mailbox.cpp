@@ -24,7 +24,9 @@ void Mailbox::update() {
             for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
                 // check if receiver is in sender's range
                 for (const auto& obj : objects) {
-                    if (obj.get() == it->second.get()) {
+                    std::shared_ptr<Telegraph> t = std::dynamic_pointer_cast<Telegraph>(obj);
+                    
+                    if (t.get() == it->second.get()) {
 
                     }
                 }

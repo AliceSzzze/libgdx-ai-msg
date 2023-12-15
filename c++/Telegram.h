@@ -29,9 +29,14 @@
 //
 #ifndef LIBGDX_TELEGRAM_H
 #define LIBGDX_TELEGRAM_H
+#include "CUTimestamp.h"
+
 #include <chrono>
 #include <utility>
-#include "CUTimestamp.h"
+#include <memory>
+#include <cugl/cugl.h>
+
+using namespace cugl;
 
 class Telegram {
 

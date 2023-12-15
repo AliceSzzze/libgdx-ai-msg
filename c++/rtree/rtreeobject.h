@@ -38,6 +38,10 @@ public:
     
     // REMOVE BEFORE SUBMITTING
     void draw(const std::shared_ptr<SpriteBatch>& batch);
+    
+    virtual ~RTreeObject(){
+        
+    }
 };
 
 #endif
