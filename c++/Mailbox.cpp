@@ -30,6 +30,7 @@ void Mailbox::update() {
 
                     }
                 }
+
                 // check if sender is in receiver's range
                 it->second->handleMessage(msg);
             }

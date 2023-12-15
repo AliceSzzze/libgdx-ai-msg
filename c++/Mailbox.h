@@ -39,7 +39,7 @@
 #include <map>
 #include <unordered_set>
 #include <queue>
-#include "rtree/rtree.h"
+#include "rtree.h"
 class Mailbox {
 public:
     Mailbox(const std::shared_ptr<RTree>& rtree) {

@@ -33,10 +33,10 @@
 
 #include <chrono>
 #include <utility>
+
 #include <memory>
 #include <cugl/cugl.h>
 
-using namespace cugl;
 
 class Telegram {
 
@@ -63,7 +63,7 @@ public:
     std::shared_ptr<void> extraInfo = nullptr;
 
     /// center of the sender, optional
-    Vec2 center;
+    cugl::Vec2 center;
 
     /// radius of the sender, optional
     float radius;

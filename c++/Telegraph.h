@@ -33,7 +33,7 @@
 #define LIBGDX_TELEGRAPH_H
 
 #include "Telegram.h"
-#include "rtree/rtreeobject.h"
+#include "rtreeobject.h"
 #include <functional>
 #include <iostream>
 

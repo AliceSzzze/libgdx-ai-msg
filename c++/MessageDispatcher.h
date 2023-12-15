@@ -32,7 +32,7 @@
 
 #include "Mailbox.h"
 #include "Telegraph.h"
-#include "rtree/rtree.h"
+#include "rtree.h"
 #include <unordered_map>
 
 class MessageDispatcher {
