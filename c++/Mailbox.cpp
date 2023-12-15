@@ -2,7 +2,8 @@
 // Created by Alice Sze on 11/14/23.
 //
 
-#include "MessageDispatcher.h"
+
+#include "Mailbox.h"
 #include <vector>
 
 void Mailbox::update() {
@@ -10,18 +11,31 @@ void Mailbox::update() {
     int messagesToBePopped = 0;
     for (const std::shared_ptr<Telegram>& msg: messages) {
         Uint64 elapsedMicrosSinceLastUpdate = cugl::Timestamp::ellapsedMicros(msg->lastUpdate, now);
-        // if we processed this telegram within the last 0.5ms, return
+        // if we processed this telegram within the last 250ms, return
 
         if (elapsedMicrosSinceLastUpdate < 250) return;
 
         Uint64 elapsedMillisSinceSent = cugl::Timestamp::ellapsedMillis(msg->timeSent, now);
         Uint64 lastCheckpoint = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
         auto it = listeners.upper_bound(lastCheckpoint);
-        for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
-            it->second->handleMessage(msg);
-            auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg->timeSent, cugl::Timestamp());
 
-//            Uncomment this line for benchmarking
+        std::vector<std::shared_ptr<RTreeObject>> objects = rtree->search(nullptr, 0.0);
+
+        for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
+            // if in range?
+            for (const auto& obj : objects) {
+                if (obj.get() == it->second.get()) {
+                    
+                }
+            }
+
+//                if ()
+                    // send if sender is in receiver's range
+            it->second->handleMessage(msg);
+
+
+//            Uncomment the lines below for benchmarking
+//            auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg->timeSent, cugl::Timestamp());
 //            measuredDelays.emplace_back(measuredDelayMicros - it->first * 1000, it->first);
         }
 

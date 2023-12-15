@@ -4,6 +4,9 @@
 
 #include "MessageDispatcher.h"
 
+MessageDispatcher::MessageDispatcher(float x, float y, float width, float height) {
+    rtree = std::make_shared<RTree>(x, y, width, height);
+}
 void MessageDispatcher::update() {
     for (auto &[msg, mailbox] : mailboxes) {
         mailbox->update();
@@ -12,7 +15,7 @@ void MessageDispatcher::update() {
 
 void MessageDispatcher::addMailbox(int msg) {
     if (mailboxes.find(msg) == mailboxes.end()) {
-        mailboxes.emplace(msg, std::make_shared<Mailbox>());
+        mailboxes.emplace(msg, std::make_shared<Mailbox>(rtree));
     }
 }
 

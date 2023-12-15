@@ -74,9 +74,9 @@ int main() {
     } while (diff < duration);
 
     std::vector<Delay> totalDelays;
-    for (const auto&[msg, mailbox]: dispatcher.mailboxes) {
-        totalDelays.insert(totalDelays.end(), mailbox->measuredDelays.begin(), mailbox->measuredDelays.end());
-    }
+//    for (const auto&[msg, mailbox]: dispatcher.mailboxes) {
+//        totalDelays.insert(totalDelays.end(), mailbox->measuredDelays.begin(), mailbox->measuredDelays.end());
+//    }
 
     std::string filename = "exp17.csv";
     std::ofstream csvFile(filename);

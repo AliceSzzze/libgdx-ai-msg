@@ -32,12 +32,12 @@
 #ifndef LIBGDX_TELEGRAPH_H
 #define LIBGDX_TELEGRAPH_H
 
-
 #include "Telegram.h"
+#include "rtree/rtreeobject.h"
 #include <functional>
 #include <iostream>
 
-class Telegraph {
+class Telegraph : RTreeObject {
 public:
     virtual void handleMessage(const std::shared_ptr<Telegram>& msg) const {
      };

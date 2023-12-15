@@ -15,4 +15,5 @@ add_executable(libgdx
         c++/Telegram.h
         c++/main.cpp
         c++/Delay.h
-        c++/CUTimestamp.h)
+        c++/CUTimestamp.h
+        c++/rtree/rtree.h)

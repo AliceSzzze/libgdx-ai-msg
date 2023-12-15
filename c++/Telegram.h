@@ -32,7 +32,6 @@
 #include <chrono>
 #include <utility>
 #include "CUTimestamp.h"
-#include "Telegraph.h"
 
 class Telegram {
 
@@ -46,14 +45,6 @@ public:
         this->extraInfo = std::move(extraInfo);
     }
 
-    explicit Telegram(const std::shared_ptr<Telegraph>& sender) : Telegram() {
-        this->sender = sender;
-    }
-
-    Telegram(const std::shared_ptr<Telegraph>& sender, std::shared_ptr<void> extraInfo) : Telegram(sender) {
-         this->sender = sender;
-         this->extraInfo = std::move(extraInfo);
-    }
 
     /// the time at which dispatchMessage is called and this telegram is created.
     cugl::Timestamp timeSent;
@@ -62,8 +53,6 @@ public:
     /// Used to keep track of which listeners we still have to dispatch to.
     cugl::Timestamp lastUpdate;
 
-    /// the sender of this telegram
-    std::shared_ptr<Telegraph> sender;
 
     /// optional extra information that is associated with this telegram.
     std::shared_ptr<void> extraInfo = nullptr;

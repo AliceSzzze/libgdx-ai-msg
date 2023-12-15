@@ -32,10 +32,12 @@
 
 #include "Mailbox.h"
 #include "Telegraph.h"
+#include "rtree/rtree.h"
 #include <unordered_map>
 
 class MessageDispatcher {
 public:
+    MessageDispatcher(float x, float y, float width, float height);
     /**
      * Calls update on every mailbox, which then sends delayed telegrams with an
      * expired timestamp to listeners.
@@ -59,7 +61,6 @@ public:
      * @param msg the message code
      */
     void removeMailbox(int msg);
-
 
     void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<Telegraph>& receiver, int msg);
     void dispatchMessage(const std::shared_ptr<Telegraph>& sender, int msg);
@@ -92,6 +93,7 @@ public:
 
 private:
     std::unordered_map<int, std::shared_ptr<Mailbox>> mailboxes;
+    std::shared_ptr<RTree> rtree;
 
 };
 

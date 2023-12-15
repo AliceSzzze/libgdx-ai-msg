@@ -39,10 +39,12 @@
 #include <map>
 #include <unordered_set>
 #include <queue>
-
+#include "rtree/rtree.h"
 class Mailbox {
 public:
-    Mailbox() = default;
+    Mailbox(const std::shared_ptr<RTree>& rtree) {
+        this->rtree = rtree;
+    };
 
     /**
      * Updates the mailbox and sends delayed telegrams with an expired timestamp
@@ -91,5 +93,6 @@ private:
     /// Messages are popped once there are no more deliveries to be made.
     std::deque<std::shared_ptr<Telegram>> messages;
 
+    std::shared_ptr<RTree> rtree;
 };
 #endif //LIBGDX_MAILBOX_H
