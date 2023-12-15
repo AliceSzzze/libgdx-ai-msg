@@ -40,7 +40,7 @@
 
 class MessageDispatcher {
 public:
-    MessageDispatcher(float x, float y, float width, float height);
+    MessageDispatcher(float x, float y, float width, float height, int rTreeMaxPerLevel = 5, int rTreeMinPerLevel = 2, int rTreePadding = 10);
     /**
      * Calls update on every mailbox, which then sends delayed telegrams with an
      * expired timestamp to listeners.
@@ -79,7 +79,7 @@ public:
      * @param msg the message code
      * @param extraInfo optional information, nullptr by default
      */
-    void dispatchMessage(const std::shared_ptr<Telegraph>& receiver,
+    void dispatchDirectMessage(const std::shared_ptr<Telegraph>& receiver,
                          int msg,
                          const std::shared_ptr<Telegraph>& sender = nullptr,
                          const std::shared_ptr<void>& extraInfo = nullptr);
@@ -97,8 +97,8 @@ public:
      * @param extraInfo extra information attached to the message. Optional.
      * @param sender the sender of the message
      */
-    void dispatchMessage(int msg,
-                         const std::shared_ptr<Telegraph>& sender,
+    void dispatchMessage(const std::shared_ptr<Telegraph>& sender,
+                         int msg,
                          const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
@@ -137,13 +137,14 @@ public:
      */
     void removeListener(const std::shared_ptr<Telegraph>& listener, int msg);
 
+    /// the rtree that is used for range queries when deciding who is in range
+    /// for messages. Shared between all the mailboxes.
+    std::shared_ptr<RTree> rtree;
 private:
     /// maps message codes to mailboxes
     std::unordered_map<int, std::shared_ptr<Mailbox>> mailboxes;
 
-    /// the rtree that is used for range queries when deciding who is in range
-    /// for messages. Shared between all the mailboxes.
-    std::shared_ptr<RTree> rtree;
+    
 };
 
 #endif //LIBGDX_MESSAGEDISPATCHER_H

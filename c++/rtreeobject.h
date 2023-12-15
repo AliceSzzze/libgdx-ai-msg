@@ -69,13 +69,10 @@ public:
     bool subscribesToTag();
 
     // REMOVE BEFORE SUBMITTING
-    void update(float mapWidth, float mapHeight);
+    void update();
 
     // REMOVE BEFORE SUBMITTING
     std::string print();
-    
-    // REMOVE BEFORE SUBMITTING
-    void draw(const std::shared_ptr<SpriteBatch>& batch);
     
     virtual ~RTreeObject(){
         

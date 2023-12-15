@@ -37,6 +37,8 @@
 #include <memory>
 #include <cugl/cugl.h>
 
+using namespace cugl;
+
 // forward declaration of the Telegraph class to eliminate circular include
 // dependency.
 class Telegraph;
@@ -50,8 +52,8 @@ public:
      * checked for deliveries are set as the current time.
      */
      Telegram() {
-        timeSent = cugl::Timestamp();
-        lastUpdate = cugl::Timestamp();
+        timeSent = Timestamp();
+        lastUpdate = Timestamp(timeSent);
     }
 
     /**
@@ -90,11 +92,11 @@ public:
     }
 
     /// the time at which dispatchMessage is called by the sender and this telegram is created.
-    cugl::Timestamp timeSent;
+    Timestamp timeSent;
 
     /// the last time we checked this telegram for messages to dispatch.
     /// Used to keep track of which listeners we still have to dispatch to.
-    cugl::Timestamp lastUpdate;
+    Timestamp lastUpdate;
 
 
     /// optional extra information that is associated with this telegram.

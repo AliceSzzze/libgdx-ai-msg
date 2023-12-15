@@ -34,11 +34,17 @@
 #include <vector>
 using namespace cugl;
 
+Mailbox::Mailbox(int tag){
+    mailboxTag = tag;
+}
+
 /**
  * Updates the mailbox and sends delayed telegrams with an expired timestamp
  * to listeners.
+ *
+ * @param rtree The R-Tree on which to perform range queries.
  */
-void Mailbox::update() {
+void Mailbox::update(std::shared_ptr<RTree> rtree) {
     Timestamp now;
     
     // we pop messages from the queue after the iteration to prevent concurrent modification
@@ -55,32 +61,32 @@ void Mailbox::update() {
         
         // What was the delay we processed up to when this message was last updated?
         Uint64 lastDelay = Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
-        
-        // we want to get all the listeners with a larger delay than what we last processed
-        // because they haven't received the message yet
 
         std::shared_ptr<Telegraph> sender = msg->sender;
 
         bool allListenersReceived = true;
         // if the sender specified a radius
-        if (sender != nullptr && sender->getCenter() != nullptr) {
+        if (sender != nullptr && sender->specifiesRadius()) {
             // get all listeners in range of sender's AOI
-            std::vector<std::shared_ptr<RTreeObject>> listenersInRange = rtree->search(sender->getCenter(), sender->getRadius());
-            bool allListenersReceived = true;
+            std::vector<std::shared_ptr<RTreeObject>> listenersInRange = rtree->search(sender->getCenter(), sender->getRadius(), mailboxTag);
             
             for (auto it = listenersInRange.begin(); it != listenersInRange.end(); it++) {
                 std::shared_ptr<Telegraph> t = std::dynamic_pointer_cast<Telegraph>(*it);
                 
-                // check if receiver has the same key as the message
-                if (delays.find(t) == delays.end()) continue;
-
-                // check if receiver has received the message or isn't ready yet
-                long delay = delays.at(t);
-                if(!(delay > lastDelay && delay <= elapsedMillisSinceSent)) continue;
-                
                 // check if the receiver has a specified radius and if the sender is in the receiver's range
-                if (t->getCenter() != nullptr
-                        && !rtree->isInRange(t->getCenter(), t->getRadius(), sender.get())){
+                if (t->specifiesRadius()
+                        && !sender->rect.doesIntersect(t->getCenter(), t->getRadius())){
+                    continue;
+                }
+
+                long delay = delays.at(t);
+                // check if receiver has received the message
+                if(lastDelay > delay && elapsedMillisSinceSent > delay){
+                    continue;
+                }
+                
+                // check if receiver hasn't received the message yet
+                if(elapsedMillisSinceSent < delay){
                     allListenersReceived = false;
                     continue;
                 }
@@ -89,10 +95,13 @@ void Mailbox::update() {
             }
         } else {
             auto it = listeners.upper_bound(lastDelay);
+            if(lastDelay == 0){
+                it = listeners.begin();
+            }
             // otherwise just send to all subscribers
             for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
-                if (it->second->getCenter() != nullptr &&
-                       !rtree->isInRange(it->second->getCenter(), it->second->getRadius(), sender.get()))
+                if (it->second->specifiesRadius() &&
+                    !sender->rect.doesIntersect(it->second->getCenter(), it->second->getRadius()))
                     continue;
                 
                 it->second->handleMessage(msg);
@@ -101,8 +110,8 @@ void Mailbox::update() {
 //            auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg->timeSent, cugl::Timestamp());
 //            measuredDelays.emplace_back(measuredDelayMicros - it->first * 1000, it->first);
             }
-            if (it == listeners.end()) {
-                allListenersReceived = true;
+            if (it != listeners.end()) {
+                allListenersReceived = false;
             }
         }
 
@@ -134,7 +143,7 @@ void Mailbox::update() {
  * @param receiver the receiver of the message
  * @param extraInfo optional information, nullptr by default
  */
-void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>&sender,
+void Mailbox::dispatchDirectMessage(const std::shared_ptr<Telegraph>&sender,
                               const std::shared_ptr<Telegraph>& receiver,
                               const std::shared_ptr<void>& extraInfo) {
     std::shared_ptr<Telegram> telegram = std::make_shared<Telegram>(extraInfo, sender);
@@ -151,20 +160,24 @@ void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>&sender,
  * resources can be deleted when the reference count is decremented to zero.
  *
  * @param extraInfo extra information attached to the message. Optional.
+ * @param rtree The R-Tree on which to perform range queries.
  * @param sender the sender of the message
  */
 void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>& sender,
+                              const std::shared_ptr<RTree> rtree,
                               const std::shared_ptr<void>& extraInfo) {
     std::shared_ptr<Telegram> telegram = std::make_shared<Telegram>(extraInfo, sender);
+    
+    messages.push_back(telegram);
 
-    for (const auto& t: immediate) {
-        // deliver to listeners who do not have a delay right away
-        t->handleMessage(telegram);
-    }
-
-    if (delays.size() > 0) {
-        messages.push_back(telegram);
-    }
+//    for (const auto& t: immediate) {
+//        // deliver to listeners who do not have a delay right away
+//        t->handleMessage(telegram);
+//    }
+//
+//    if (delays.size() > 0) {
+//        messages.push_back(telegram);
+//    }
 }
 
 /**
@@ -175,10 +188,11 @@ void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>& sender,
  * defined in the class or passed as an argument to the shared_ptr constructor
  * resources can be deleted when the reference count is decremented to zero.
  *
+ * @param rtree The R-Tree on which to perform range queries.
  * @param extraInfo extra information attached to the message. Optional and nullptr by default.
  */
-void Mailbox::dispatchMessage(const std::shared_ptr<void>& extraInfo) {
-    Mailbox::dispatchMessage(nullptr, extraInfo);
+void Mailbox::dispatchMessage(const std::shared_ptr<RTree> rtree, const std::shared_ptr<void>& extraInfo) {
+    Mailbox::dispatchMessage(nullptr, rtree, extraInfo);
 }
 
 /**
@@ -192,15 +206,17 @@ void Mailbox::dispatchMessage(const std::shared_ptr<void>& extraInfo) {
  */
 void Mailbox::addListener(const std::shared_ptr<Telegraph>& listener, Uint64 delay) {
     listeners.emplace(delay, listener);
+    delays.emplace(listener, delay);
 
-    if (delay <= 0) {
-        immediate.emplace(listener);
-    } else {
-        delays.emplace(listener.get(), delay);
-    }
+//    if (delay <= 0) {
+//        immediate.emplace(listener);
+//    } else {
+//        delays.emplace(listener.get(), delay);
+//    }
 }
 
-/** Unregister the specified listener from this mailbox. This operation
+/**
+ * Unregister the specified listener from this mailbox. This operation
  * is a no-op if the listener is not subscribed to the mailbox.
  *
  * @param listener the listener to remove

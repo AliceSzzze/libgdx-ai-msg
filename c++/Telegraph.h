@@ -38,11 +38,10 @@
 #include <functional>
 #include <iostream>
 
+using namespace cugl;
+
 class Telegraph : public RTreeObject {
 private:
-    /// optional
-    cugl::Vec2 center;
-
     /// optional
     float radius;
     
@@ -55,7 +54,7 @@ public:
      * @param width The width of the telegraph
      * @param height The height of the telegraph
      */
-    Telegraph(float x, float y, float width, float height) : RTreeObject(x,y,width,height) {}
+    Telegraph(float x, float y, float width, float height) : RTreeObject(x,y,width,height), radius(-1) {}
     
     /**
      * Creates and initializes a Telegraph object with a specified send/receive
@@ -66,22 +65,30 @@ public:
      * @param y The initial y-coordinates of the telegraph
      * @param width The width of the telegraph
      * @param height The height of the telegraph
-     * @param center The center of the circular send/receive range
      * @param radius The radius of the circular send/receive range
      */
-    Telegraph(float x, float y, float width, float height,cugl::Vec2& center, float radius) : RTreeObject(x,y,width,height){
-        this->center = center;
+    Telegraph(float x, float y, float width, float height, float radius) : RTreeObject(x,y,width,height){
         this->radius = radius;
     }
 
     /// returns the center of the range for this telegraph
-    cugl::Vec2& getCenter() {
-        return center;
+    Vec2 getCenter() {
+        return Vec2(rect.getMidX(), rect.getMidY());
     }
 
     /// returns the radius of the range for this telegraph
     float getRadius() const {
         return radius;
+    }
+    
+    /// returns whether this telegraph contains a radius
+    float specifiesRadius() {
+        return radius > 0;
+    }
+    
+    /// Set the search radius.
+    void setSearchRadius(float r){
+        radius = r;
     }
 
     /**
@@ -91,7 +98,7 @@ public:
      *
      * @param msg The message delivered to the telegraph
      */
-    virtual void handleMessage(const std::shared_ptr<Telegram> msg) const {
+    virtual void handleMessage(const std::shared_ptr<Telegram> msg) {
      };
 
     virtual bool operator==(const Telegraph& other) const {

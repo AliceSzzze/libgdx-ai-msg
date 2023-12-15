@@ -43,20 +43,17 @@
 class Mailbox {
 public:
     /**
-     * Creates a mailbox with an existing R-Tree.
-     *
-     * @param rtree the rtree the mailbox should used to check who is in range
-     * for message delivery.
+     * Creates a mailbox.
      */
-    Mailbox(const std::shared_ptr<RTree>& rtree) {
-        this->rtree = rtree;
-    };
+    Mailbox(int tag);
 
     /**
      * Updates the mailbox and sends delayed telegrams with an expired timestamp
      * to listeners.
+     *
+     * @param rtree The R-Tree on which to perform range queries.
      */
-    void update();
+    void update(std::shared_ptr<RTree> rtree);
 
     /**
      * Directly dispatches a message from the sender to the receiver, without
@@ -71,7 +68,7 @@ public:
      * @param receiver the receiver of the message
      * @param extraInfo optional information, nullptr by default
      */
-    void dispatchMessage(const std::shared_ptr<Telegraph>& sender,
+    void dispatchDirectMessage(const std::shared_ptr<Telegraph>& sender,
                          const std::shared_ptr<Telegraph>& receiver,
                          const std::shared_ptr<void>& extraInfo = nullptr);
 
@@ -86,8 +83,10 @@ public:
      *
      * @param extraInfo extra information attached to the message. Optional.
      * @param sender the sender of the message
+     * @param rtree The R-Tree on which to perform range queries.
      */
     void dispatchMessage(const std::shared_ptr<Telegraph>& sender,
+                         const std::shared_ptr<RTree> rtree,
                          const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
@@ -100,7 +99,7 @@ public:
      *
      * @param extraInfo extra information attached to the message. Optional and nullptr by default.
      */
-    void dispatchMessage(const std::shared_ptr<void>& extraInfo = nullptr);
+    void dispatchMessage(const std::shared_ptr<RTree> rtree, const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
      * Registers a listener with this mailbox. The caller can optionally add
@@ -126,6 +125,9 @@ public:
 //    std::vector<Delay> measuredDelays;
 
 private:
+    /// The tag corresponding to this Mailbox.
+    int mailboxTag;
+    
     /// maps listeners to their delays if the delays are > 0
     std::unordered_map<std::shared_ptr<Telegraph>, Uint64> delays;
 
@@ -138,9 +140,5 @@ private:
     /// a FIFO queue for messages in the order that they are first created.
     /// Messages are popped once there are no more deliveries to be made.
     std::deque<std::shared_ptr<Telegram>> messages;
-
-    /// the rtree that is used to check who is in the sender/recipient's range
-    /// if a range is specified
-    std::shared_ptr<RTree> rtree;
 };
 #endif //LIBGDX_MAILBOX_H

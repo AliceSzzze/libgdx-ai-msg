@@ -132,8 +132,6 @@ private:
      * @return The root node of the new RTree.
      */
     std::shared_ptr<RTreeNode> sortTileRecursive(std::vector<std::shared_ptr<RTreeNode>> &nodes);
-    
-    bool isInRangeFromNode(RTreeNode &n, const Vec2 center, float radius, RTreeObject* target);
 
 public:
     /** The root node of this RTree. */
@@ -182,8 +180,6 @@ public:
      * the search area that subscribe to the given tag.
      */
     std::vector<std::shared_ptr<RTreeObject>> search(const Vec2 center, float radius, int tag);
-
-    bool isInRange(const Vec2 center, float radius, RTreeObject* target);
     
     
     /**
