@@ -1,8 +1,9 @@
 //
 //  Telegraph.h
 //
-//  This class implements a Telegraph object. Any object that inherits this class
-//  can act as the sender or the receiver of a Telegram.
+//  This class implements a Telegraph object. Only telegraphs can receive messages
+//  from the MessageDispatcher, leave sender information in the messages or specify
+//  send or receive ranges.
 //
 //  Subclasses should override the handleMessage function and equals operator.
 //
@@ -46,13 +47,34 @@ private:
     float radius;
     
 public:
-    Telegraph(float x, float y, float width, float height) : RTreeObject(x,y,width,height){}
+    /**
+     * Creates and initializes a Telegraph object without specifying a send/receive range.
+     *
+     * @param x The initial x-coordinates of the telegraph
+     * @param y The initial y-coordinates of the telegraph
+     * @param width The width of the telegraph
+     * @param height The height of the telegraph
+     */
+    Telegraph(float x, float y, float width, float height) : RTreeObject(x,y,width,height) {}
     
+    /**
+     * Creates and initializes a Telegraph object with a specified send/receive
+     * range. The range is a circle that defines who this telegraph can send
+     * messages to or receive messages from regardless of tags.
+     *
+     * @param x The initial x-coordinates of the telegraph
+     * @param y The initial y-coordinates of the telegraph
+     * @param width The width of the telegraph
+     * @param height The height of the telegraph
+     * @param center The center of the circular send/receive range
+     * @param radius The radius of the circular send/receive range
+     */
     Telegraph(float x, float y, float width, float height,cugl::Vec2& center, float radius) : RTreeObject(x,y,width,height){
         this->center = center;
         this->radius = radius;
     }
-    
+
+
     cugl::Vec2& getCenter() {
         return center;
     }
@@ -60,8 +82,15 @@ public:
     float getRadius() {
         return radius;
     }
-    
-    virtual void handleMessage(const std::shared_ptr<Telegram>& msg) const {
+
+    /**
+     * An abstract method that is invoked when a message is delivered to the Telegraph.
+     * Objects that inherit from this class should override this method with their
+     * own handler.
+     *
+     * @param msg The message delivered to the telegraph
+     */
+    virtual void handleMessage(const std::shared_ptr<Telegram> msg) const {
      };
 
     virtual bool operator==(const Telegraph& other) const {

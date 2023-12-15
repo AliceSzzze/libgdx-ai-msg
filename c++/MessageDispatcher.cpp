@@ -8,6 +8,7 @@ MessageDispatcher::MessageDispatcher(float x, float y, float width, float height
     rtree = std::make_shared<RTree>(x, y, width, height);
 }
 void MessageDispatcher::update() {
+    rtree->update();
     for (auto &[msg, mailbox] : mailboxes) {
         mailbox->update();
     }

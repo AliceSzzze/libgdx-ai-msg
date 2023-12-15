@@ -68,10 +68,13 @@ void Mailbox::dispatchMessage(const std::shared_ptr<void>& extraInfo) {
     std::shared_ptr<Telegram> telegram = std::make_shared<Telegram>(extraInfo);
 
     for (const auto& t: immediate) {
+        // deliver to listeners who do not have a delay right away
         t->handleMessage(telegram);
     }
 
-    messages.push_back(telegram);
+    if (delays.size() > 0) {
+        messages.push_back(telegram);
+    }
 }
 
 void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<void>& extraInfo) {

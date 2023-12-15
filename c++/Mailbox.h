@@ -4,7 +4,7 @@
 //  This class implements a Mailbox object. A mailbox is associated with a
 //  message code and is responsible for dispatching all the telegrams with that
 //  message code. Users should not directly interact with this class and should
-//  use the MessageDispatcher instead.
+//  use the MessageDispatcher instead to dispatch messages or add mailboxes.
 //
 //  CUGL MIT License:
 //      This software is provided 'as-is', without any express or implied

@@ -1,9 +1,8 @@
 //
 //  Telegram.h
 //
-//  This class implements a Telegram object. A Telegram is a message that is sent
-//  by a Telegraph. The same Telegram can be sent to one or more Telegraphs through
-//  the MessageDispatcher.
+//  This class implements a Telegram object. A Telegram is essentially a message.
+//  A Telegram can be sent to one or more Telegraphs through the MessageDispatcher.
 //
 //  CUGL MIT License:
 //      This software is provided 'as-is', without any express or implied
@@ -37,6 +36,8 @@
 #include <memory>
 #include <cugl/cugl.h>
 
+// forward declaration of the Telegraph class to eliminate circular include
+// dependency.
 class Telegraph;
 class Telegram {
 
@@ -46,14 +47,40 @@ public:
         lastUpdate = cugl::Timestamp();
     }
 
+    /**
+     * Creates a Telegram with extra information.
+     *
+     * The extra information can be of any type, but must have a destructor if
+     * any resources need to be freed.
+     *
+     * @param extraInfo Extra information that is attached to the telegram
+     */
     explicit Telegram(std::shared_ptr<void> extraInfo) : Telegram() {
         this->extraInfo = std::move(extraInfo);
     }
-    
+
+    /**
+     * Creates a Telegram with information about the sender.
+     *
+     * @param sender The sender of this Telegram.
+     */
     explicit Telegram(const std::shared_ptr<Telegraph>& sender) : Telegram() {
         this->sender = sender;
     }
 
+    /**
+     * Creates a Telegram with extra information and information about the sender.
+     *
+     * The extra information can be of any type, but must have a destructor if
+     * any resources need to be freed.
+     *
+     * @param extraInfo Extra information that is attached to the telegram
+     * @param sender The sender of this Telegram.
+     */
+    Telegram(std::shared_ptr<void> extraInfo, const std::shared_ptr<Telegraph>& sender) : Telegram() {
+        this->extraInfo = std::move(extraInfo);
+        this->sender = sender;
+    }
 
     /// the time at which dispatchMessage is called and this telegram is created.
     cugl::Timestamp timeSent;
@@ -65,7 +92,8 @@ public:
 
     /// optional extra information that is associated with this telegram.
     std::shared_ptr<void> extraInfo;
-    
+
+    /// sender of this telegram. Optional.
     std::shared_ptr<Telegraph> sender;
 };
 

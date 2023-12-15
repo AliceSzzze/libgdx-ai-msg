@@ -1,7 +1,10 @@
 //
 //  MessageDispatcher.h
 //
-//  This class implements a MessageDispatcher object.
+//  This class implements a MessageDispatcher object. A MessageDispatcher serves
+//  as a central post office that is responsible for getting messages from senders
+//  / publishers to the receivers/subscribers. This keeps the two sides decoupled.
+//  The dispatcher should be updated regularly in a main game loop.
 //
 //  CUGL MIT License:
 //      This software is provided 'as-is', without any express or implied
