@@ -24,25 +24,22 @@ void MessageDispatcher::removeMailbox(int msg) {
     mailboxes.erase(msg);
 }
 
-void MessageDispatcher::dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<Telegraph>& receiver, int msg) {
-    mailboxes[msg]->dispatchMessage(sender, receiver);
+void MessageDispatcher::dispatchMessage(const std::shared_ptr<Telegraph>& receiver, int msg, const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<void>& extraInfo) {
+    mailboxes.at(msg)->dispatchMessage(sender, receiver, extraInfo);
 }
 
-void MessageDispatcher::dispatchMessage(const std::shared_ptr<Telegraph>& sender, int msg) {
-    if (mailboxes.find(msg) != mailboxes.end()) {
-        mailboxes[msg]->dispatchMessage(sender);
-    }
+void MessageDispatcher::dispatchMessage(int msg, const std::shared_ptr<Telegraph>& sender,  const std::shared_ptr<void>& extraInfo) {
+    mailboxes.at(msg)->dispatchMessage(sender);
 }
 
 void MessageDispatcher::dispatchMessage(int msg, const std::shared_ptr<void>& extraInfo) {
-    mailboxes[msg]->dispatchMessage(extraInfo);
+    mailboxes.at(msg)->dispatchMessage(extraInfo);
 }
 
 void MessageDispatcher::addListener(const std::shared_ptr<Telegraph>& listener, int msg, int delay) {
-    mailboxes[msg]->addListener(listener, delay);
-
+    mailboxes.at(msg)->addListener(listener, delay);
 }
 
-bool MessageDispatcher::removeListener(const std::shared_ptr<Telegraph>& listener, int msg) {
-    return mailboxes[msg]->removeListener(listener);
+void MessageDispatcher::removeListener(const std::shared_ptr<Telegraph>& listener, int msg) {
+    return mailboxes.at(msg)->removeListener(listener);
 }

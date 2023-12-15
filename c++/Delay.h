@@ -1,7 +1,8 @@
 //
 //  Delay.h
 //
-//  This class implements a Delay object.
+//  This class implements a Delay object, which is used to hold data about delays and
+//   is purely for benchmarking.
 //
 //  CUGL MIT License:
 //      This software is provided 'as-is', without any express or implied
@@ -36,7 +37,11 @@ using namespace std::chrono;
 class Delay {
 public:
     Delay(Uint64 measuredDelay, Uint64 expectedDelay) : measuredDelayMicros(measuredDelay), expectedDelay(expectedDelay) {};
+    
+    /// the unwanted delay (after subtracting the intended delay from the measured overall delay) in microseconds
     Uint64 measuredDelayMicros;
+    
+    /// the delay requested by the user in milliseconds
     Uint64 expectedDelay;
 };
 

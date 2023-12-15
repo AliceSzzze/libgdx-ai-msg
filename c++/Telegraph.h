@@ -74,11 +74,13 @@ public:
         this->radius = radius;
     }
 
+    /// returns the center of the range for this telegraph
     cugl::Vec2& getCenter() {
         return center;
     }
-    
-    float getRadius() {
+
+    /// returns the radius of the range for this telegraph
+    float getRadius() const {
         return radius;
     }
 

@@ -58,10 +58,48 @@ public:
      */
     void update();
 
-    void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<Telegraph>& receiver, const std::shared_ptr<void>& extraInfo = nullptr);
-    
-    void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<void>& extraInfo = nullptr);
+    /**
+     * Directly dispatches a message from the sender to the receiver, without
+     * sending it to subscribers of the message code.
+     * Caller can optionally attach extra information to the message.
+     *
+     * The extra information can be of any type, but a destructor should be
+     * defined in the class or passed as an argument to the shared_ptr constructor
+     * resources can be deleted when the reference count is decremented to zero.
+     *
+     * @param sender the sender of the message (optional)
+     * @param receiver the receiver of the message
+     * @param extraInfo optional information, nullptr by default
+     */
+    void dispatchMessage(const std::shared_ptr<Telegraph>& sender,
+                         const std::shared_ptr<Telegraph>& receiver,
+                         const std::shared_ptr<void>& extraInfo = nullptr);
 
+    /**
+     * Dispatches a message to the listeners subscribed to the code of the mailbox,
+     * with a reference to the sender of the message. Caller can optionally
+     * attach extra information to the message.
+     *
+     * The extra information can be of any type, but a destructor should be
+     * defined in the class or passed as an argument to the shared_ptr constructor
+     * resources can be deleted when the reference count is decremented to zero.
+     *
+     * @param extraInfo extra information attached to the message. Optional.
+     * @param sender the sender of the message
+     */
+    void dispatchMessage(const std::shared_ptr<Telegraph>& sender,
+                         const std::shared_ptr<void>& extraInfo = nullptr);
+
+    /**
+     * Dispatches a message to the listeners subscribed to the message code.
+     * Caller can optionally attach extra information to the message.
+     *
+     * The extra information can be of any type, but a destructor should be
+     * defined in the class or passed as an argument to the shared_ptr constructor
+     * resources can be deleted when the reference count is decremented to zero.
+     *
+     * @param extraInfo extra information attached to the message. Optional and nullptr by default.
+     */
     void dispatchMessage(const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
@@ -75,11 +113,12 @@ public:
      */
     void addListener(const std::shared_ptr<Telegraph>& listener, Uint64 delay = 0);
 
-    /** Unregister the specified listener from this mailbox.
+    /** Unregister the specified listener from this mailbox. This operation
+     * is a no-op if the listener is not subscribed to the mailbox.
      *
 	 * @param listener the listener to remove
      * */
-    bool removeListener(const std::shared_ptr<Telegraph>&);
+    void removeListener(const std::shared_ptr<Telegraph>&);
 
     /// (for benchmarking) used to record the measured unwanted delays between
     /// the time a message is dispatched and when it is actually sent to a

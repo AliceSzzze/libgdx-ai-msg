@@ -65,8 +65,41 @@ public:
      */
     void removeMailbox(int msg);
 
-    void dispatchMessage(const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<Telegraph>& receiver, int msg);
-    void dispatchMessage(const std::shared_ptr<Telegraph>& sender, int msg);
+    /**
+     * Directly dispatches a message from the sender to the receiver, without
+     * sending it to subscribers of the message code.
+     * Caller can optionally attach extra information to the message.
+     *
+     * The extra information can be of any type, but a destructor should be
+     * defined in the class or passed as an argument to the shared_ptr constructor
+     * resources can be deleted when the reference count is decremented to zero.
+     *
+     * @param sender the sender of the message (optional)
+     * @param receiver the receiver of the message
+     * @param msg the message code
+     * @param extraInfo optional information, nullptr by default
+     */
+    void dispatchMessage(const std::shared_ptr<Telegraph>& receiver,
+                         int msg,
+                         const std::shared_ptr<Telegraph>& sender = nullptr,
+                         const std::shared_ptr<void>& extraInfo = nullptr);
+
+    /**
+     * Dispatches a message with the given code to the listeners subscribed to
+     * the code, with a reference to the sender of the message. Caller can
+     * optionally attach extra information to the message.
+     *
+     * The extra information can be of any type, but a destructor should be
+     * defined in the class or passed as an argument to the shared_ptr constructor
+     * resources can be deleted when the reference count is decremented to zero.
+     *
+     * @param msg the message code
+     * @param extraInfo extra information attached to the message. Optional.
+     * @param sender the sender of the message
+     */
+    void dispatchMessage(int msg,
+                         const std::shared_ptr<Telegraph>& sender,
+                         const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
      * Dispatches a message with the given code to the listeners subscribed to
@@ -81,6 +114,16 @@ public:
      */
     void dispatchMessage(int msg, const std::shared_ptr<void>& extraInfo = nullptr);
 
+    /**
+     * Registers a listener with the given message code. The caller can optionally add
+     * a delay (in milliseconds) to the messages that the listener receives with
+     * this message code.
+     *
+     * @param listener the listener to register
+     * @param msg the message code to subscribe to
+     * @param delay the delay (in milliseconds) on the messages sent to the listener.
+     * This is optional and there is no delay by default.
+     */
     void addListener(const std::shared_ptr<Telegraph>& listener, int msg, int delay = 0);
 
     /**
@@ -92,13 +135,15 @@ public:
      * @param msg the message code to remove the listener from
      * @return whether the listener has been removed
      */
-    bool removeListener(const std::shared_ptr<Telegraph>& listener, int msg);
+    void removeListener(const std::shared_ptr<Telegraph>& listener, int msg);
 
 private:
+    /// maps message codes to mailboxes
     std::unordered_map<int, std::shared_ptr<Mailbox>> mailboxes;
+
+    /// the rtree that is used for range queries when deciding who is in range
+    /// for messages. Shared between all the mailboxes.
     std::shared_ptr<RTree> rtree;
-
 };
-
 
 #endif //LIBGDX_MESSAGEDISPATCHER_H
