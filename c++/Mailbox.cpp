@@ -32,13 +32,14 @@
 
 #include "Mailbox.h"
 #include <vector>
+using namespace cugl;
 
 /**
  * Updates the mailbox and sends delayed telegrams with an expired timestamp
  * to listeners.
  */
 void Mailbox::update() {
-    cugl::Timestamp now;
+    Timestamp now;
     
     // we pop messages from the queue after the iteration to prevent concurrent modification
     int messagesToBePopped = 0;
@@ -50,44 +51,63 @@ void Mailbox::update() {
         // because it is unlikely that we already have expired timestamps. Can be uncommented.
         if (elapsedMicrosSinceLastUpdate < 250) return;
 
-        Uint64 elapsedMillisSinceSent = cugl::Timestamp::ellapsedMillis(msg->timeSent, now);
+        Uint64 elapsedMillisSinceSent = Timestamp::ellapsedMillis(msg->timeSent, now);
         
         // What was the delay we processed up to when this message was last updated?
-        Uint64 lastDelay = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
+        Uint64 lastDelay = Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
         
         // we want to get all the listeners with a larger delay than what we last processed
         // because they haven't received the message yet
-        auto it = listeners.upper_bound(lastDelay);
-        
+
         std::shared_ptr<Telegraph> sender = msg->sender;
 
+        bool allListenersReceived = true;
         // if the sender specified a radius
         if (sender != nullptr && sender->getCenter() != nullptr) {
+            // get all listeners in range of sender's AOI
+            std::vector<std::shared_ptr<RTreeObject>> listenersInRange = rtree->search(sender->getCenter(), sender->getRadius());
+            bool allListenersReceived = true;
             
-            for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
+            for (auto it = listenersInRange.begin(); it != listenersInRange.end(); it++) {
+                std::shared_ptr<Telegraph> t = std::dynamic_pointer_cast<Telegraph>(*it);
                 
-                // check if receiver is in sender's range
-                if (!rtree->isInRange(sender->getCenter(), sender->getRadius(), it->second.get())) continue;
+                // check if receiver has the same key as the message
+                if (delays.find(t) == delays.end()) continue;
+
+                // check if receiver has received the message or isn't ready yet
+                long delay = delays.at(t);
+                if(!(delay > lastDelay && delay <= elapsedMillisSinceSent)) continue;
                 
                 // check if the receiver has a specified radius and if the sender is in the receiver's range
-                if (it->second->getCenter() != nullptr &&
-                    !rtree->isInRange(it->second->getCenter(), it->second->getRadius(), sender.get())) continue;
+                if (t->getCenter() != nullptr
+                        && !rtree->isInRange(t->getCenter(), t->getRadius(), sender.get())){
+                    allListenersReceived = false;
+                    continue;
+                }
                 
-                it->second->handleMessage(msg);
+                t->handleMessage(msg);
             }
         } else {
+            auto it = listeners.upper_bound(lastDelay);
             // otherwise just send to all subscribers
             for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
+                if (it->second->getCenter() != nullptr &&
+                       !rtree->isInRange(it->second->getCenter(), it->second->getRadius(), sender.get()))
+                    continue;
+                
                 it->second->handleMessage(msg);
 
 //            Uncomment the lines below for benchmarking
 //            auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg->timeSent, cugl::Timestamp());
 //            measuredDelays.emplace_back(measuredDelayMicros - it->first * 1000, it->first);
             }
+            if (it == listeners.end()) {
+                allListenersReceived = true;
+            }
         }
 
         // if we have sent to all subscribers, pop the message from the queue
-        if (it == listeners.end()) {
+        if (allListenersReceived) {
             messagesToBePopped++;
         } else {
             msg->lastUpdate = now;
@@ -186,9 +206,9 @@ void Mailbox::addListener(const std::shared_ptr<Telegraph>& listener, Uint64 del
  * @param listener the listener to remove
  * */
 void Mailbox::removeListener(const std::shared_ptr<Telegraph>& listener) {
-    if (delays.find(listener.get()) == delays.end()) return;
+    if (delays.find(listener) == delays.end()) return;
 
-    Uint64 delay = delays[listener.get()];
+    Uint64 delay = delays[listener];
     if (delay <= 0) {
         immediate.erase(listener);
     } else {
@@ -203,7 +223,7 @@ void Mailbox::removeListener(const std::shared_ptr<Telegraph>& listener) {
         }
     }
 
-    delays.erase(listener.get());
+    delays.erase(listener);
 }
 
 

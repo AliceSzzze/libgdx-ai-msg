@@ -127,7 +127,7 @@ public:
 
 private:
     /// maps listeners to their delays if the delays are > 0
-    std::unordered_map<Telegraph*, Uint64> delays;
+    std::unordered_map<std::shared_ptr<Telegraph>, Uint64> delays;
 
     /// maps delays in milliseconds to the set of listeners that have those delays
     std::multimap<Uint64, std::shared_ptr<Telegraph>> listeners;

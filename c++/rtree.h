@@ -38,15 +38,16 @@ private:
 
     /**
      * Fills a vector with objects in a subtree that intersect with a given
-     * circular area.
+     * circular area and subscribe to a given tag.
      *
      * @param n The root of the subtree.
      * @param center The center of the circle.
      * @param radius The radius of the circle.
+     * @param tag The tag of objects to return (-1 for all objects).
      * @param res Vector containing objects that intersect the area.
      */
     void findIntersections(RTreeNode &n,
-        const Vec2 center, float radius,
+        const Vec2 center, float radius, int tag,
             std::vector<std::shared_ptr<RTreeObject>> &res);
 
     /**
@@ -170,6 +171,17 @@ public:
      * the search area.
      */
     std::vector<std::shared_ptr<RTreeObject>> search(const Vec2 center, float radius);
+    
+    /**
+     * Searches for objects within a given circular area that have the given tag.
+     *
+     * @param center The center of the circle to search.
+     * @param radius The radius of the circle to search.
+     * @param tag The tag of objects to return (-1 for all objects).
+     * @return A vector of shared pointers to RTreeObject instances intersecting
+     * the search area that subscribe to the given tag.
+     */
+    std::vector<std::shared_ptr<RTreeObject>> search(const Vec2 center, float radius, int tag);
 
     bool isInRange(const Vec2 center, float radius, RTreeObject* target);
     

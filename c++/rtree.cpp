@@ -15,25 +15,27 @@
 using namespace cugl;
 /**
  * Fills a vector with objects in a subtree that intersect with a given
- * circular area.
+ * circular area and subscribe to a given tag.
  *
  * @param n The root of the subtree.
  * @param center The center of the circle.
  * @param radius The radius of the circle.
+ * @param tag
  * @param res Vector containing objects that intersect the area.
  */
-void RTree::findIntersections(RTreeNode &n, const Vec2 center, float radius,
+void RTree::findIntersections(RTreeNode &n, const Vec2 center, float radius, int tag,
                             std::vector<std::shared_ptr<RTreeObject>> &res) {
     if (n.level == 0) {
         for (auto &child : n.children) {
-            if (child->obj->rect.doesIntersect(center, radius)) {
+            if (child->obj->rect.doesIntersect(center, radius)
+                    && child->obj->containsTag(tag)) {
                 res.push_back(child->obj);
             }
         }
     } else {
         for (auto &child : n.children) {
             if (child->rect.doesIntersect(center, radius)) {
-                findIntersections(*child, center, radius, res);
+                findIntersections(*child, center, radius, tag, res);
             }
         }
     }
@@ -467,8 +469,21 @@ void RTree::clear() {
  * the search area.
  */
 std::vector<std::shared_ptr<RTreeObject>> RTree::search(const Vec2 center, float radius) {
+    return search(center, radius, -1);
+}
+
+/**
+ * Searches for objects within a given circular area.
+ *
+ * @param center The center of the circle to search.
+ * @param radius The radius of the circle to search.
+ * @param tag The tag of objects to return (-1 for all objects).
+ * @return A vector of shared pointers to RTreeObject instances intersecting
+ * the search area.
+ */
+std::vector<std::shared_ptr<RTreeObject>> RTree::search(const Vec2 center, float radius, int tag) {
     std::vector<std::shared_ptr<RTreeObject>> res;
-    findIntersections(*root, center, radius, res);
+    findIntersections(*root, center, radius, tag, res);
     return res;
 }
 
