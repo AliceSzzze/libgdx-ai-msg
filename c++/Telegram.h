@@ -56,6 +56,12 @@ public:
 
     /// optional extra information that is associated with this telegram.
     std::shared_ptr<void> extraInfo = nullptr;
+
+    /// center of the sender, optional
+    Vec2 center;
+
+    /// radius of the sender, optional
+    float radius;
 };
 
 

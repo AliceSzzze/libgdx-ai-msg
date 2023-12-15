@@ -19,24 +19,26 @@ void Mailbox::update() {
         Uint64 lastCheckpoint = cugl::Timestamp::ellapsedMillis(msg->timeSent, msg->lastUpdate);
         auto it = listeners.upper_bound(lastCheckpoint);
 
-        std::vector<std::shared_ptr<RTreeObject>> objects = rtree->search(nullptr, 0.0);
+        if (msg->center != nullptr) {
+            std::vector<std::shared_ptr<RTreeObject>> objects = rtree->search(msg->center, msg->radius);
+            for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
+                // check if receiver is in sender's range
+                for (const auto& obj : objects) {
+                    if (obj.get() == it->second.get()) {
 
-        for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
-            // if in range?
-            for (const auto& obj : objects) {
-                if (obj.get() == it->second.get()) {
-                    
+                    }
                 }
+                // check if sender is in receiver's range
+                it->second->handleMessage(msg);
             }
-
-//                if ()
-                    // send if sender is in receiver's range
-            it->second->handleMessage(msg);
-
+        } else {
+            for (; it != listeners.end() && it->first <= elapsedMillisSinceSent; it++) {
+                it->second->handleMessage(msg);
 
 //            Uncomment the lines below for benchmarking
 //            auto measuredDelayMicros = cugl::Timestamp::ellapsedMicros(msg->timeSent, cugl::Timestamp());
 //            measuredDelays.emplace_back(measuredDelayMicros - it->first * 1000, it->first);
+            }
         }
 
         if (it == listeners.end()) {

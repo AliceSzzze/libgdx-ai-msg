@@ -23,7 +23,7 @@ void writeToCSV(std::ofstream& csvFile, const std::vector<Delay>& data) {
 }
 
 int main() {
-    MessageDispatcher dispatcher;
+    MessageDispatcher dispatcher(0,0,0,0);
 
     int numMailboxes = 5;
     int numTelegraphs = 200;
