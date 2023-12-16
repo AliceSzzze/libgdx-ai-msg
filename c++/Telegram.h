@@ -27,9 +27,15 @@
 //  Author: Alice Sze
 //  Version: 12/14/2023
 //
+<<<<<<< HEAD
 #ifndef CUGL_TELEGRAM_H
 #define CUGL_TELEGRAM_H
 #include "CUTimestamp.h"
+=======
+#ifndef LIBGDX_TELEGRAM_H
+#define LIBGDX_TELEGRAM_H
+#include "cugl/util/CUTimestamp.h"
+>>>>>>> 096624405c3c6d1e628c815c7a8a7595a5746b0e
 
 #include <chrono>
 #include <utility>

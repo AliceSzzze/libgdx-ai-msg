@@ -143,7 +143,6 @@ void MessageDispatcher::addListener(const std::shared_ptr<Telegraph>& listener, 
  *
  * @param listener the listener to remove
  * @param msg the message code to remove the listener from
- * @return whether the listener has been removed
  */
 void MessageDispatcher::removeListener(const std::shared_ptr<Telegraph>& listener, int msg) {
     listener->removeTag(msg);
