@@ -82,7 +82,7 @@ public:
     void dispatchDirectMessage(const std::shared_ptr<Telegraph>& receiver,
                          int msg,
                          const std::shared_ptr<Telegraph>& sender = nullptr,
-                         const std::shared_ptr<void> extraInfo = nullptr);
+                         const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
      * Dispatches a message with the given code to the listeners subscribed to
@@ -99,7 +99,7 @@ public:
      */
     void dispatchMessage(const std::shared_ptr<Telegraph>& sender,
                          int msg,
-                         const std::shared_ptr<void> extraInfo = nullptr);
+                         const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
      * Dispatches a message with the given code to the listeners subscribed to
@@ -112,7 +112,7 @@ public:
      * @param msg the message code
      * @param extraInfo extra information attached to the message. Optional.
      */
-    void dispatchMessage(int msg, const std::shared_ptr<void> extraInfo = nullptr);
+    void dispatchMessage(int msg, const std::shared_ptr<void>& extraInfo = nullptr);
 
     /**
      * Registers a listener with the given message code. The caller can optionally add
