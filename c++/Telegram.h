@@ -29,7 +29,7 @@
 //
 #ifndef LIBGDX_TELEGRAM_H
 #define LIBGDX_TELEGRAM_H
-#include "CUTimestamp.h"
+#include "cugl/util/CUTimestamp.h"
 
 #include <chrono>
 #include <utility>
