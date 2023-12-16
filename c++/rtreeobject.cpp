@@ -43,14 +43,3 @@ bool RTreeObject::containsTag(int tag){
 bool RTreeObject::subscribesToTag(){
     return !tags.empty();
 }
-
-void RTreeObject::update() {
-    
-}
-
-std::string RTreeObject::print() {
-    return "[(" + std::to_string(rect.getMinX()) + ", " +
-           std::to_string(rect.getMinY()) + "), (" +
-           std::to_string(rect.getMaxX()) + ", " +
-           std::to_string(rect.getMaxY()) + ")]\n";
-}
