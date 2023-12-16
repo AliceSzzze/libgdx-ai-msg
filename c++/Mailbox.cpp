@@ -71,6 +71,7 @@ void Mailbox::update(std::shared_ptr<RTree> rtree) {
             std::vector<std::shared_ptr<RTreeObject>> listenersInRange = rtree->search(sender->getCenter(), sender->getRadius(), mailboxTag);
             
             for (auto it = listenersInRange.begin(); it != listenersInRange.end(); it++) {
+                // we know only insert Telegraphs into the rtree so this should be a safe cast
                 std::shared_ptr<Telegraph> t = std::dynamic_pointer_cast<Telegraph>(*it);
                 
                 // check if the receiver has a specified radius and if the sender is in the receiver's range
@@ -80,8 +81,9 @@ void Mailbox::update(std::shared_ptr<RTree> rtree) {
                 }
 
                 long delay = delays.at(t);
+                
                 // check if receiver has received the message
-                if(lastDelay > delay && elapsedMillisSinceSent > delay){
+                if (lastDelay > delay && elapsedMillisSinceSent > delay){
                     continue;
                 }
                 
@@ -190,6 +192,8 @@ void Mailbox::dispatchMessage(const std::shared_ptr<RTree> rtree, const std::sha
  * Registers a listener with this mailbox. The caller can optionally add
  * a delay (in milliseconds) to the messages that the listener receives from
  * this mailbox.
+ *
+ * If a listener is already registered, the new delay will replace the old one.
  *
  * @param listener the listener to register
  * @param delay the delay (in milliseconds) on the messages sent to the listener.

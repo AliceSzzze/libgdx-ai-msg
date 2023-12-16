@@ -106,6 +106,8 @@ public:
      * a delay (in milliseconds) to the messages that the listener receives from
      * this mailbox.
      *
+     * If a listener is already registered, the new delay will replace the old one.
+     *
      * @param listener the listener to register
      * @param delay the delay (in milliseconds) on the messages sent to the listener.
      * This is optional and there is no delay by default.
@@ -114,6 +116,8 @@ public:
 
     /** Unregister the specified listener from this mailbox. This operation
      * is a no-op if the listener is not subscribed to the mailbox.
+     *
+     * The user should remove listeners that are no longer active.
      *
 	 * @param listener the listener to remove
      * */

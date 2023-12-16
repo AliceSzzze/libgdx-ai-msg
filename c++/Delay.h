@@ -2,7 +2,8 @@
 //  Delay.h
 //
 //  This class implements a Delay object, which is used to hold data about delays and
-//   is purely for benchmarking.
+//   is purely for benchmarking. You could use a std::pair instead if you don't need more
+//   than two pieces of information.
 //
 //  CUGL MIT License:
 //      This software is provided 'as-is', without any express or implied
