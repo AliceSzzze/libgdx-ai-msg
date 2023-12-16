@@ -10,7 +10,8 @@
 using namespace cugl;
 
 /**
- * Class representing a node of an R-tree, which is 
+ * Class representing a node of an R-tree, which is represented by
+ * a bounding box that encloses all of the bounding boxes of its children.
  */
 class RTreeNode {
 public:

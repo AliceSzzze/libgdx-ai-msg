@@ -475,6 +475,9 @@ std::vector<std::shared_ptr<RTreeObject>> RTree::search(const Vec2 center, float
  * (default is 20).
  */
 void RTree::insert(std::shared_ptr<RTreeObject> obj) {
+    if(objectToBBox.find(obj) != objectToBBox.end()){
+        return;
+    }
     insertHelper(*root, obj);
     if (root->children.size() > maxPerLevel) {
         std::shared_ptr<RTreeNode> newRoot = std::make_shared<RTreeNode>(
