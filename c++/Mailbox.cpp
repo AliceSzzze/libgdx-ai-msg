@@ -169,15 +169,6 @@ void Mailbox::dispatchMessage(const std::shared_ptr<Telegraph>& sender,
     std::shared_ptr<Telegram> telegram = std::make_shared<Telegram>(extraInfo, sender);
     
     messages.push_back(telegram);
-
-//    for (const auto& t: immediate) {
-//        // deliver to listeners who do not have a delay right away
-//        t->handleMessage(telegram);
-//    }
-//
-//    if (delays.size() > 0) {
-//        messages.push_back(telegram);
-//    }
 }
 
 /**
@@ -207,12 +198,6 @@ void Mailbox::dispatchMessage(const std::shared_ptr<RTree> rtree, const std::sha
 void Mailbox::addListener(const std::shared_ptr<Telegraph>& listener, Uint64 delay) {
     listeners.emplace(delay, listener);
     delays.emplace(listener, delay);
-
-//    if (delay <= 0) {
-//        immediate.emplace(listener);
-//    } else {
-//        delays.emplace(listener.get(), delay);
-//    }
 }
 
 /**
@@ -225,17 +210,13 @@ void Mailbox::removeListener(const std::shared_ptr<Telegraph>& listener) {
     if (delays.find(listener) == delays.end()) return;
 
     Uint64 delay = delays[listener];
-    if (delay <= 0) {
-        immediate.erase(listener);
-    } else {
-        // there could be multiple listeners with the same delay
-        auto range = listeners.equal_range(delay);
-        // iterate to see which listener we need to remove
-        for (auto it = range.first; it != range.second; ++it) {
-            if (it->second == listener) {
-                listeners.erase(it);
-                break;  // Stop after removing the first matching element
-            }
+    // there could be multiple listeners with the same delay
+    auto range = listeners.equal_range(delay);
+    // iterate to see which listener we need to remove
+    for (auto it = range.first; it != range.second; ++it) {
+        if (it->second == listener) {
+            listeners.erase(it);
+            break;  // Stop after removing the first matching element
         }
     }
 

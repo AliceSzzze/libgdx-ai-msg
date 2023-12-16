@@ -134,9 +134,6 @@ private:
     /// maps delays in milliseconds to the set of listeners that have those delays
     std::multimap<Uint64, std::shared_ptr<Telegraph>> listeners;
 
-    /// listeners with a 0ms or unspecified delay. Kept as a separate data structure for optimization.
-    std::unordered_set<std::shared_ptr<Telegraph>> immediate;
-
     /// a FIFO queue for messages in the order that they are first created.
     /// Messages are popped once there are no more deliveries to be made.
     std::deque<std::shared_ptr<Telegram>> messages;

@@ -23,9 +23,6 @@ private:
 public:
     /** The bounding box of this object. */
     Rect rect;
-    
-    float velX; // REMOVE BEFORE SUBMITTING
-    float velY; // REMOVE BEFORE SUBMITTING
 
     /**
     * Creates a new RTreeObject that doesn't subscribe to any tags.

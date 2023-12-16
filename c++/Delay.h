@@ -27,8 +27,8 @@
 //  Version: 12/14/2023
 //
 
-#ifndef LIBGDX_DELAY_H
-#define LIBGDX_DELAY_H
+#ifndef CUGL_DELAY_H
+#define CUGL_DELAY_H
 
 #include <ctime>
 #include <chrono>
@@ -46,4 +46,4 @@ public:
 };
 
 
-#endif //LIBGDX_DELAY_H
+#endif //CUGL_DELAY_H

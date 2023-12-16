@@ -281,14 +281,16 @@ std::vector<std::shared_ptr<RTreeObject>> RTree::removeHelper(
     std::vector<std::shared_ptr<RTreeObject>> entriesToReinsert;
 
     if (n->level == 0) {
+        bool removed = false;
         for (auto it = n->children.begin(); it != n->children.end(); ++it) {
             if ((*it)->obj.get() == obj.get()) {
                 n->children.erase(it);
+                removed = true;
                 break;
             }
         }
-
-        if (n->children.size() < minPerLevel) {
+        
+        if (removed && n->children.size() < minPerLevel) {
             for (auto it = n->children.begin(); it != n->children.end(); ++it) {
                 entriesToReinsert.push_back((*it)->obj);
             }
@@ -306,8 +308,8 @@ std::vector<std::shared_ptr<RTreeObject>> RTree::removeHelper(
 
                 // Erase the current child from the vector and obtain the iterator to
                 // the next element
-                it = n->children.erase(it);
                 mustResize = true;
+                break;
             } else {
                 ++it;
             }
