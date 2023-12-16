@@ -27,8 +27,8 @@
 //  Author: Alice Sze
 //  Version: 12/14/2023
 //
-#ifndef LIBGDX_TELEGRAM_H
-#define LIBGDX_TELEGRAM_H
+#ifndef CUGL_TELEGRAM_H
+#define CUGL_TELEGRAM_H
 #include "CUTimestamp.h"
 
 #include <chrono>
@@ -106,4 +106,4 @@ public:
 };
 
 
-#endif //LIBGDX_TELEGRAM_H
+#endif //CUGL_TELEGRAM_H

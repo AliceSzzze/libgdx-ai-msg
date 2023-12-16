@@ -29,8 +29,8 @@
 //  Version: 12/14/2023
 //
 
-#ifndef LIBGDX_MESSAGEDISPATCHER_H
-#define LIBGDX_MESSAGEDISPATCHER_H
+#ifndef CUGL_MESSAGEDISPATCHER_H
+#define CUGL_MESSAGEDISPATCHER_H
 
 
 #include "Mailbox.h"
@@ -147,4 +147,4 @@ private:
     
 };
 
-#endif //LIBGDX_MESSAGEDISPATCHER_H
+#endif //CUGL_MESSAGEDISPATCHER_H

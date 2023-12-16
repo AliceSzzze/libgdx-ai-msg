@@ -29,8 +29,8 @@
 //  Version: 12/14/2023
 //
 
-#ifndef LIBGDX_MAILBOX_H
-#define LIBGDX_MAILBOX_H
+#ifndef CUGL_MAILBOX_H
+#define CUGL_MAILBOX_H
 
 
 #include "Telegraph.h"
@@ -138,4 +138,4 @@ private:
     /// Messages are popped once there are no more deliveries to be made.
     std::deque<std::shared_ptr<Telegram>> messages;
 };
-#endif //LIBGDX_MAILBOX_H
+#endif //CUGL_MAILBOX_H

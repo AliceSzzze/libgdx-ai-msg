@@ -30,8 +30,8 @@
 //  Version: 12/14/2023
 //
 
-#ifndef LIBGDX_TELEGRAPH_H
-#define LIBGDX_TELEGRAPH_H
+#ifndef CUGL_TELEGRAPH_H
+#define CUGL_TELEGRAPH_H
 
 #include "Telegram.h"
 #include "rtreeobject.h"
@@ -106,4 +106,4 @@ public:
     }
 };
 
-#endif //LIBGDX_TELEGRAPH_H
+#endif //CUGL_TELEGRAPH_H
