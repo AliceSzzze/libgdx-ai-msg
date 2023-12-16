@@ -49,6 +49,7 @@ void RTree::findIntersections(RTreeNode &n, const Vec2 center, float radius, int
  * @return Pair of RTreeNode shared pointers containing the first two elements of the two new nodes
  */
 std::pair<std::shared_ptr<RTreeNode>, std::shared_ptr<RTreeNode>> RTree::pickSeeds(RTreeNode &n) {
+    // Along the x/y dimensions, find the entry with the highest low side, and the entry with the lowest high side
     std::shared_ptr<RTreeNode> maxLowSideEntryX = nullptr;
     std::shared_ptr<RTreeNode> minHighSideEntryX = nullptr;
     std::shared_ptr<RTreeNode> maxLowSideEntryY = nullptr;
@@ -90,11 +91,12 @@ std::pair<std::shared_ptr<RTreeNode>, std::shared_ptr<RTreeNode>> RTree::pickSee
         }
     }
 
-    double separationX = (double)(minHighSideEntryX->rect.getMaxX() -
-                                                                 maxLowSideEntryX->rect.getMinX()) /
+    // Determine the separation between the two sides and normalize them
+    double separationX =
+        (double)(minHighSideEntryX->rect.getMaxX() - maxLowSideEntryX->rect.getMinX()) /
                                                 (n.rect.getMaxX() - n.rect.getMinX());
-    double separationY = (double)(minHighSideEntryY->rect.getMaxY() -
-                                                                 maxLowSideEntryY->rect.getMinY()) /
+    double separationY =
+        (double)(minHighSideEntryY->rect.getMaxY() - maxLowSideEntryY->rect.getMinY()) /
                                                 (n.rect.getMaxY() - n.rect.getMinY());
 
     std::pair<std::shared_ptr<RTreeNode>, std::shared_ptr<RTreeNode>> seeds;
@@ -117,7 +119,7 @@ std::pair<std::shared_ptr<RTreeNode>, std::shared_ptr<RTreeNode>> RTree::pickSee
  * @param added Set of children already assigned to a new node
  * @param bbox_1 The bounding box of the first new node
  * @param bbox_2 The bounding box of the second new node
- * @return RTreeNode* The next child to be added to a new node
+ * @return The next child to be added to a new node
  */
 std::shared_ptr<RTreeNode> RTree::pickNext(
         const std::vector<std::shared_ptr<RTreeNode>> &children,
@@ -125,6 +127,8 @@ std::shared_ptr<RTreeNode> RTree::pickNext(
         const Rect &bbox_1, const Rect &bbox_2) {
     int max_diff = 0;
     std::shared_ptr<RTreeNode> max_child = nullptr;
+    
+    // Find the entry with the maximum area difference between putting it in group 1 and group 2.
     for (auto it = children.begin(); it != children.end(); ++it) {
         std::shared_ptr<RTreeNode> child = *it;
         if (added.find(child) != added.end()) {
@@ -315,7 +319,7 @@ std::vector<std::shared_ptr<RTreeObject>> RTree::removeHelper(
             }
         }
 
-        if (mustResize) {
+        if (mustResize && n->level != root->level) {
             Rect newBBox = n->children[0]->rect;
             for (auto it = n->children.begin(); it != n->children.end(); ++it) {
                 newBBox += (*it)->rect;

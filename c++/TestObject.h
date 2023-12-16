@@ -1,5 +1,6 @@
 #include "Telegraph.h"
 
+// Used for testing/visualization purposes. Should be removed before it's added to CUGL
 class TestObject : public Telegraph {
 public:
     float velX;
@@ -18,12 +19,10 @@ public:
     };
     
     void handleMessage(const std::shared_ptr<Telegram> msg) {
-        std::cout << "Message sent at: " << msg->timeSent.ellapsedNanos(Timestamp()) << std::endl;
         wasAlerted = true;
     }
     
     void update(float mapWidth, float mapHeight){
-        Telegraph::update();
         if (rect.getMaxX() + velX >= mapWidth || rect.getMinX() + velX < 0) {
             velX = -velX;
         }
@@ -41,6 +40,7 @@ public:
         else{
             batch->setColor(Color4::BLACK);
         }
+        
         Rect r = Rect((rect.origin.x) / 1024, (rect.origin.y) / 576,
                       (rect.size.width) / 1024, (rect.size.height) / 576);
         batch->outline(r);

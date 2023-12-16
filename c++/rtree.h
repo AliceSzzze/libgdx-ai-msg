@@ -218,6 +218,7 @@ public:
      */
     void update();
 
+    // Used for testing/visualization purposes. Should be removed before it's added to CUGL
     void draw(const std::shared_ptr<SpriteBatch> &batch);
 };
 

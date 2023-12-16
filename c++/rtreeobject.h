@@ -34,8 +34,6 @@ public:
     */
     RTreeObject(float x, float y, float width, float height);
     
-    void setPosition(float x, float y);
-    
     /**
      * Adds a tag to the set of subscribed tags.
      *
@@ -64,13 +62,10 @@ public:
      * @return true if this object is subscribed to at least one tag, and false otherwise.
      */
     bool subscribesToTag();
-
-    // REMOVE BEFORE SUBMITTING
-    void update();
-
-    // REMOVE BEFORE SUBMITTING
-    std::string print();
     
+    /**
+     * Deconstruct this RTreeObject.
+     */
     virtual ~RTreeObject(){
         
     }
