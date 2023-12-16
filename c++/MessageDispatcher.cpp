@@ -84,7 +84,7 @@ void MessageDispatcher::removeMailbox(int msg) {
  * @param msg the message code
  * @param extraInfo optional information, nullptr by default
  */
-void MessageDispatcher::dispatchDirectMessage(const std::shared_ptr<Telegraph>& receiver, int msg, const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<void> extraInfo) {
+void MessageDispatcher::dispatchDirectMessage(const std::shared_ptr<Telegraph>& receiver, int msg, const std::shared_ptr<Telegraph>& sender, const std::shared_ptr<void>& extraInfo) {
     mailboxes.at(msg)->dispatchDirectMessage(sender, receiver, extraInfo);
 }
 
@@ -101,7 +101,7 @@ void MessageDispatcher::dispatchDirectMessage(const std::shared_ptr<Telegraph>& 
  * @param msg the message code
  * @param extraInfo extra information attached to the message. Optional.
  */
-void MessageDispatcher::dispatchMessage(const std::shared_ptr<Telegraph>& sender, int msg, const std::shared_ptr<void> extraInfo) {
+void MessageDispatcher::dispatchMessage(const std::shared_ptr<Telegraph>& sender, int msg, const std::shared_ptr<void>& extraInfo) {
     mailboxes.at(msg)->dispatchMessage(sender, rtree, extraInfo);
 }
 
@@ -116,7 +116,7 @@ void MessageDispatcher::dispatchMessage(const std::shared_ptr<Telegraph>& sender
  * @param msg the message code
  * @param extraInfo extra information attached to the message. Optional.
  */
-void MessageDispatcher::dispatchMessage(int msg, const std::shared_ptr<void> extraInfo) {
+void MessageDispatcher::dispatchMessage(int msg, const std::shared_ptr<void>& extraInfo) {
     mailboxes.at(msg)->dispatchMessage(rtree, extraInfo);
 }
 

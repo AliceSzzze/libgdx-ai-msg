@@ -98,7 +98,6 @@ public:
     /// Used to keep track of which listeners we still have to dispatch to.
     Timestamp lastUpdate;
 
-
     /// optional extra information that is associated with this telegram.
     std::shared_ptr<void> extraInfo = nullptr;
 
